@@ -2,6 +2,7 @@
 .build/
 .swiftpm/
 *.app/
+*.dmg
 
 # macOS
 .DS_Store

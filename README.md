@@ -20,20 +20,36 @@ volume you choose.
 - Apps left at 100% on the default device are completely untouched (no tap,
   no overhead)
 
+## Install
+
+Download the latest `AppMixer-x.y.dmg` from the
+[Releases](https://github.com/chewei3/AppMixer/releases) page, open it, and drag
+**AppMixer** into your Applications folder.
+
+The app is ad-hoc signed but not notarized, so the first time you open it macOS
+will block it. **Right-click AppMixer.app → Open**, then confirm in the dialog —
+you only need to do this once. (On recent macOS you may instead need to approve
+it under **System Settings → Privacy & Security**.)
+
+Add AppMixer to **System Settings → General → Login Items** to launch it at
+login.
+
 ## Requirements
 
 - macOS 15 or later
-- Swift 6 toolchain (`swift build`)
+- Universal binary (Apple Silicon + Intel)
+- To build from source: Swift 6 toolchain (`swift build`)
 
 ## Build
 
 ```sh
-./build.sh
+./build.sh      # compile + assemble AppMixer.app (host arch)
+./release.sh    # universal build + packaged AppMixer-x.y.dmg
 ```
 
-This compiles the project and assembles `AppMixer.app` in the repo root, then
-ad-hoc code-signs it. Move the bundle to `/Applications` if you like, and add it
-to **System Settings → General → Login Items** to launch it at login.
+`build.sh` assembles `AppMixer.app` in the repo root and ad-hoc code-signs it.
+`release.sh` builds both architectures, merges them with `lipo`, and produces a
+distributable DMG.
 
 ## Usage
 
