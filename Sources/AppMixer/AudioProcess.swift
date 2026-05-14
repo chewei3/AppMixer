@@ -4,7 +4,7 @@ import CoreAudio
 struct AudioProcess: Identifiable, Equatable {
     let id: AudioObjectID      // Core Audio process object ID
     let pid: pid_t
-    let bundleID: String?
+    let bundleID: String       // stable across launches — used as the settings key
     let name: String
     let icon: NSImage?
     let isPlaying: Bool
@@ -65,9 +65,6 @@ final class AudioProcessController {
             }
 
             let runningApp = NSRunningApplication(processIdentifier: pid)
-            let bundleID = (try? objectID.readString(kAudioProcessPropertyBundleID)).flatMap {
-                $0.isEmpty ? nil : $0
-            }
             let runningOutput = (try? objectID.read(kAudioProcessPropertyIsRunningOutput)) as UInt32?
             let isPlaying = (runningOutput ?? 0) != 0
 
@@ -75,7 +72,8 @@ final class AudioProcessController {
             // XPC helper services, menu bar agents, and ourselves.
             guard let app = runningApp,
                   app.activationPolicy == .regular,
-                  app.bundleIdentifier != Bundle.main.bundleIdentifier,
+                  let bundleID = app.bundleIdentifier,
+                  bundleID != Bundle.main.bundleIdentifier,
                   let name = app.localizedName
             else { continue }
 

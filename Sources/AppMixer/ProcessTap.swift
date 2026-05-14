@@ -6,6 +6,9 @@ import Foundation
 /// at an adjustable volume. Requires macOS 14.2+.
 final class ProcessTap {
     let process: AudioProcess
+    /// UID of the output device to route this app to. `nil` means the system
+    /// default output device.
+    let outputDeviceUID: String?
 
     private var tapID: AudioObjectID = .unknown
     private var aggregateID: AudioObjectID = .unknown
@@ -18,8 +21,9 @@ final class ProcessTap {
         set { volumePtr.pointee = max(0, min(1, newValue)) }
     }
 
-    init(process: AudioProcess) {
+    init(process: AudioProcess, outputDeviceUID: String? = nil) {
         self.process = process
+        self.outputDeviceUID = outputDeviceUID
         volumePtr.pointee = 1.0
     }
 
@@ -43,9 +47,26 @@ final class ProcessTap {
         try ca(AudioHardwareCreateProcessTap(tapDescription, &createdTap), "AudioHardwareCreateProcessTap")
         tapID = createdTap
 
-        // 2. The real output device the audio should ultimately land on.
-        let outputDevice: AudioObjectID = try AudioObjectID.system.read(kAudioHardwarePropertyDefaultOutputDevice)
-        let outputUID = try outputDevice.readString(kAudioDevicePropertyDeviceUID)
+        // The realtime mixer assumes 32-bit float samples. This holds for
+        // process taps in practice; warn if it ever doesn't.
+        if let format: AudioStreamBasicDescription = try? tapID.read(kAudioTapPropertyFormat) {
+            let isFloat = format.mFormatFlags & kAudioFormatFlagIsFloat != 0
+            if !isFloat || format.mBitsPerChannel != 32 {
+                appLog("AppMixer: \(process.name) tap format is not 32-bit float "
+                       + "(flags=\(format.mFormatFlags) bits=\(format.mBitsPerChannel)) — "
+                       + "volume scaling may be incorrect")
+            }
+        }
+
+        // 2. The real output device the audio should ultimately land on —
+        //    either the user's chosen device or the system default.
+        let outputUID: String
+        if let outputDeviceUID {
+            outputUID = outputDeviceUID
+        } else {
+            let outputDevice: AudioObjectID = try AudioObjectID.system.read(kAudioHardwarePropertyDefaultOutputDevice)
+            outputUID = try outputDevice.readString(kAudioDevicePropertyDeviceUID)
+        }
 
         // 3. Build a private aggregate device: real output + our tap.
         let description: [String: Any] = [

@@ -23,9 +23,32 @@ struct MenuView: View {
                 }
                 .frame(maxHeight: .infinity)
             }
+            Divider()
+            footer
         }
         .frame(minWidth: 320, idealWidth: 360, maxWidth: .infinity,
                minHeight: 280, idealHeight: 480, maxHeight: .infinity)
+    }
+
+    private var footer: some View {
+        HStack(spacing: 6) {
+            Toggle(isOn: Binding(
+                get: { manager.volumeKeysWanted },
+                set: { manager.setVolumeKeysEnabled($0) }
+            )) {
+                Text("音量鍵控制最前景 App")
+                    .font(.system(size: 11))
+            }
+            .toggleStyle(.checkbox)
+            Spacer()
+            if manager.volumeKeysWanted && !manager.volumeKeysActive {
+                Text("需輔助使用權限")
+                    .font(.system(size: 9))
+                    .foregroundStyle(.orange)
+            }
+        }
+        .padding(.horizontal, 12)
+        .padding(.vertical, 6)
     }
 
     private var header: some View {
@@ -98,6 +121,31 @@ struct ProcessRow: View {
                         .foregroundStyle(.secondary)
                         .frame(width: 34, alignment: .trailing)
                 }
+
+                HStack(spacing: 6) {
+                    Image(systemName: "hifispeaker")
+                        .font(.system(size: 10))
+                        .foregroundStyle(.secondary)
+                        .frame(width: 16)
+                    Menu {
+                        Button("預設裝置") { manager.setOutputDevice(nil, for: process) }
+                        if !manager.outputDevices.isEmpty {
+                            Divider()
+                            ForEach(manager.outputDevices) { device in
+                                Button(device.name) {
+                                    manager.setOutputDevice(device.uid, for: process)
+                                }
+                            }
+                        }
+                    } label: {
+                        Text(currentDeviceName)
+                            .font(.system(size: 10))
+                            .lineLimit(1)
+                    }
+                    .menuStyle(.borderlessButton)
+                    .fixedSize()
+                    Spacer(minLength: 0)
+                }
             }
         }
         .padding(.vertical, 5)
@@ -106,6 +154,13 @@ struct ProcessRow: View {
             RoundedRectangle(cornerRadius: 6)
                 .fill(Color.primary.opacity(0.04))
         )
+    }
+
+    private var currentDeviceName: String {
+        guard let uid = manager.outputDevice(for: process),
+              let device = manager.outputDevices.first(where: { $0.uid == uid })
+        else { return "預設裝置" }
+        return device.name
     }
 
     @ViewBuilder
