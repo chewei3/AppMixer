@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleName</key>
+    <string>AppMixer</string>
+    <key>CFBundleDisplayName</key>
+    <string>AppMixer</string>
+    <key>CFBundleIdentifier</key>
+    <string>com.chewei3.appmixer</string>
+    <key>CFBundleVersion</key>
+    <string>1</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.0</string>
+    <key>CFBundleExecutable</key>
+    <string>AppMixer</string>
+    <key>CFBundlePackageType</key>
+    <string>APPL</string>
+    <key>LSMinimumSystemVersion</key>
+    <string>15.0</string>
+    <key>LSUIElement</key>
+    <true/>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>AppMixer 需要錄音／音訊擷取權限，才能擷取並調整個別 App 的音量。</string>
+    <key>NSAudioCaptureUsageDescription</key>
+    <string>AppMixer 會擷取各 App 的聲音，以便用你設定的音量重新混音輸出。</string>
+</dict>
+</plist>

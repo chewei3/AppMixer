@@ -1,0 +1,10 @@
+# Build artifacts
+.build/
+.swiftpm/
+*.app/
+
+# macOS
+.DS_Store
+
+# Logs
+*.log
