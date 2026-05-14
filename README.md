@@ -10,12 +10,15 @@ volume you choose.
 
 ## Features
 
-- Per-app volume sliders (0–100%)
-- Per-app mute
+- Per-app volume sliders (0–100%) and per-app mute
+- Per-app output device routing — send each app to a different output device
+- Settings persist across launches (keyed by bundle ID)
+- Optional global volume keys that adjust the frontmost app's volume
 - Menu bar item with a popover
 - Global hotkey (`⌃⌥⌘M`) to summon the control panel — handy when the menu bar
   icon is hidden behind the notch
-- Apps at 100% are left completely untouched (no tap, no overhead)
+- Apps left at 100% on the default device are completely untouched (no tap,
+  no overhead)
 
 ## Requirements
 
@@ -42,6 +45,13 @@ The first time you adjust an app's volume, macOS asks for audio-capture
 permission — allow it. If you miss the prompt, grant it under
 **System Settings → Privacy & Security**.
 
+To route an app to a specific output device, use the device menu in its row.
+
+The **volume keys** option (bottom of the panel) makes the hardware volume keys
+control whichever app is frontmost. It needs Accessibility permission — grant it
+under **System Settings → Privacy & Security → Accessibility**, then re-enable
+the option.
+
 ## How it works
 
 - `AudioProcessController` enumerates audio processes via
@@ -56,9 +66,9 @@ permission — allow it. If you miss the prompt, grant it under
 ## Limitations
 
 - Assumes the tap and output device use a Float32 stream format (true in the
-  vast majority of cases). Unusual audio devices may need format conversion.
-- Volume settings are kept in memory only; they are not persisted across
-  launches.
+  vast majority of cases). Unusual audio devices may need format conversion;
+  AppMixer logs a warning when it sees a non-float format.
+- No per-app EQ or audio effects.
 
 ## License
 
